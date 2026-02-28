@@ -18,8 +18,8 @@ export function HeroSection() {
             <p className="mb-3 font-[var(--font-inter)] text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               Pascoa 2026
             </p>
-            <h1 className="text-balance font-sans text-4xl font-bold leading-tight text-primary-foreground md:text-5xl lg:text-6xl">
-              Monte Seu Ovo de Colher
+            <h1 className="text-balance uppercase font-sans text-3xl font-bold leading-tight text-primary-foreground md:text-5xl lg:text-6xl">
+              Monte seu ovo
             </h1>
             <p className="mt-4 max-w-lg font-[var(--font-inter)] text-base leading-relaxed text-primary-foreground/80 md:text-lg">
               Escolha cada detalhe do seu ovo artesanal. Casca, recheio e coberturas feitos com os melhores ingredientes.
@@ -44,7 +44,7 @@ export function HeroSection() {
             <div className="absolute -inset-3 rounded-full border border-accent/20" />
             <Image
               src="/images/hero-egg.jpg"
-              alt="Ovo de Colher gourmet com recheio de chocolate e coberturas"
+              alt="Ovo gourmet com recheio de chocolate e coberturas"
               fill
               className="rounded-full object-cover shadow-2xl"
               priority
