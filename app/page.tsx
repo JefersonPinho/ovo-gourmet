@@ -1,5 +1,5 @@
-import { EggBuilderPage } from "@/components/egg-builder-page"
+import { EggViewPage } from "@/components/eggView"
 
 export default function Page() {
-  return <EggBuilderPage />
+  return <EggViewPage />
 }
