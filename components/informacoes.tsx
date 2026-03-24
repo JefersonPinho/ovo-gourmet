@@ -8,6 +8,7 @@ import {
 } from "@/components/order-context";
 import { motion, AnimatePresence } from "framer-motion";
 import { Truck, Store, Check } from "lucide-react";
+import { formatPrice } from "@/lib/egg-data";
 
 const PAYMENT_OPTIONS: { id: PaymentMethod; label: string }[] = [
   { id: "pix", label: "Pix" },
@@ -33,10 +34,22 @@ export function Informacoes() {
     setChangeFor,
     setDeliveryMode,
     setAddressField,
+    totalPrice,
   } = useOrder();
 
   const inputBaseClasses =
     "w-full rounded-2xl border border-border/50 bg-card px-5 py-4 font-sans text-base md:text-sm text-foreground placeholder:text-muted-foreground/40 transition-all focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none hover:border-border shadow-sm";
+
+  // Lógica para converter o valor digitado em número válido
+  let numericChangeFor = NaN;
+  if (order.changeFor) {
+    let clean = order.changeFor.replace(/[^\d.,]/g, "");
+    if (clean.includes(",")) {
+      clean = clean.replace(/\./g, "").replace(",", ".");
+    }
+    numericChangeFor = parseFloat(clean);
+  }
+
   return (
     <section className="space-y-12">
       <div className="space-y-6">
@@ -176,9 +189,38 @@ export function Informacoes() {
                         type="text"
                         value={order.changeFor}
                         onChange={(e) => setChangeFor(e.target.value)}
-                        placeholder="Ex: R$ 100,00"
+                        placeholder="Ex: 100"
                         className={inputBaseClasses}
                       />
+
+                      {/* UI do Cálculo do Troco */}
+                      {order.changeFor.trim() !== "" && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="mt-2 text-sm font-sans px-1"
+                        >
+                          {isNaN(numericChangeFor) ? (
+                            <span className="text-muted-foreground text-xs">
+                              Digite apenas números e vírgulas.
+                            </span>
+                          ) : numericChangeFor < totalPrice ? (
+                            <span className="text-destructive font-semibold text-[13px]">
+                              Valor insuficiente (Total é{" "}
+                              {formatPrice(totalPrice)})
+                            </span>
+                          ) : numericChangeFor === totalPrice ? (
+                            <span className="text-green-600 font-semibold text-[13px]">
+                              Valor exato, não será necessário troco.
+                            </span>
+                          ) : (
+                            <span className="text-green-600 font-bold text-[13px] bg-green-500/10 px-3 py-1.5 rounded-lg inline-block shadow-sm">
+                              Seu troco será:{" "}
+                              {formatPrice(numericChangeFor - totalPrice)}
+                            </span>
+                          )}
+                        </motion.div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>

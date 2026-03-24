@@ -1,11 +1,10 @@
 "use client";
 
 import { OrderProvider } from "@/components/order-context";
-import { HeroSection } from "@/components/heroSection";
 import { SelecionarTamanho } from "@/components/selecionarTamanho";
 import { SelecionarCasca } from "@/components/selecionarCasca";
 import { SelecionarRecheio } from "@/components/selecionarRecheio";
-import { SelecionarCobertura } from "@/components/selecionarCobertura";
+import { SelecionarCobertura } from "@/components/selecionarAdicionais";
 import { Informacoes } from "@/components/informacoes";
 import { OrderSummary } from "@/components/order-summary";
 import { MobileStickyBar } from "@/components/mobile-sticky-bar";
@@ -19,11 +18,27 @@ const sectionVariants = {
 function BuilderContent() {
   return (
     <div className="min-h-screen bg-background">
-      <HeroSection />
       <main
         id="montar"
         className="mx-auto max-w-7xl px-5 py-12 pb-40 lg:pb-16 overflow-x-hidden"
       >
+        {/* --- NOVO TÍTULO AQUI --- */}
+        <motion.div
+          className="mb-14 flex flex-col items-center text-center"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+        >
+          <h1 className="font-serif text-5xl font-bold tracking-tight text-foreground md:text-6xl">
+            Ovo de colher Gourmet
+          </h1>
+          {/* <p className="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground sm:text-sm">
+            Personalize cada detalhe para a sua Páscoa
+          </p> */}
+          <div className="mt-6 h-1 w-20 rounded-full bg-accent/60" />
+        </motion.div>
+        {/* ------------------------ */}
+
         <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-10">
           <div className="flex-1 space-y-14">
             <motion.div
@@ -92,13 +107,6 @@ function BuilderContent() {
           </div>
         </div>
       </main>
-
-      <footer className="border-t border-border/40 bg-card py-8 text-center hidden sm:block">
-        <p className="font-sans text-sm font-medium text-muted-foreground">
-          Ovo Gourmet Artesanal &copy; {new Date().getFullYear()}. Feito com
-          carinho.
-        </p>
-      </footer>
       <MobileStickyBar />
     </div>
   );

@@ -159,7 +159,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
 
   const currentSize =
     order.sizeIndex !== null ? EGG_SIZES[order.sizeIndex] : null;
-  const totalPrice = calculatePrice(order.sizeIndex, order.toppings);
+  const totalPrice = calculatePrice(order.sizeIndex);
 
   const isProductComplete =
     order.sizeIndex !== null &&

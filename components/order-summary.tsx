@@ -50,13 +50,20 @@ export function buildWhatsAppMessage(
     `*Tamanho:* ${size}`,
     `*Casca:* ${shellLabel}`,
     `*Recheios:* ${fillingLabels}`,
-    `*Coberturas:* ${toppingLabels}`,
+    `*Adicionais:* ${toppingLabels}`,
     ``,
     `*Pagamento:* ${PAYMENT_LABELS[paymentMethod] ?? paymentMethod}`,
   ];
 
   if (paymentMethod === "dinheiro" && needsChange && changeFor) {
-    lines.push(`*Troco para:* ${changeFor}`);
+    let clean = changeFor.replace(/[^\d.,]/g, "");
+    if (clean.includes(",")) clean = clean.replace(/\./g, "").replace(",", ".");
+    const numericChangeFor = parseFloat(clean);
+
+    lines.push(`*Troco para:* R$ ${changeFor.replace(/[^\d.,]/g, "")}`);
+    if (!isNaN(numericChangeFor) && numericChangeFor > total) {
+      lines.push(`*Troco a levar:* ${formatPrice(numericChangeFor - total)}`);
+    }
   }
 
   lines.push(``);
@@ -97,6 +104,14 @@ export function OrderSummary() {
           .join(", ")
       : "Nenhuma";
 
+  // Lógica de troco para o layout
+  let numericChangeFor = NaN;
+  if (order.changeFor) {
+    let clean = order.changeFor.replace(/[^\d.,]/g, "");
+    if (clean.includes(",")) clean = clean.replace(/\./g, "").replace(",", ".");
+    numericChangeFor = parseFloat(clean);
+  }
+
   const warnAndScroll = (id: string, message: string) => {
     toast.error(message, { duration: 4000 });
     const element = document.getElementById(id);
@@ -128,14 +143,23 @@ export function OrderSummary() {
         "customer-name",
         "Como podemos te chamar? Preencha seu nome.",
       );
+
     if (!order.paymentMethod)
       return warnAndScroll("step-pagamento", "Selecione a forma de pagamento.");
-    if (
-      order.paymentMethod === "dinheiro" &&
-      order.needsChange &&
-      !order.changeFor.trim()
-    ) {
-      return warnAndScroll("change-for", "Para quanto você precisa de troco?");
+
+    if (order.paymentMethod === "dinheiro" && order.needsChange) {
+      if (!order.changeFor.trim()) {
+        return warnAndScroll(
+          "change-for",
+          "Para quanto você precisa de troco?",
+        );
+      }
+      if (isNaN(numericChangeFor) || numericChangeFor < totalPrice) {
+        return warnAndScroll(
+          "change-for",
+          "O valor para troco não pode ser menor que o pedido.",
+        );
+      }
     }
 
     if (!order.deliveryMode)
@@ -208,10 +232,24 @@ export function OrderSummary() {
             value={PAYMENT_LABELS[order.paymentMethod]}
           />
         )}
+
         {order.paymentMethod === "dinheiro" &&
           order.needsChange &&
-          order.changeFor && (
-            <SummaryRow label="Troco para" value={order.changeFor} />
+          order.changeFor &&
+          !isNaN(numericChangeFor) && (
+            <>
+              <SummaryRow
+                label="Troco para"
+                value={`R$ ${order.changeFor.replace(/[^\d.,]/g, "")}`}
+              />
+              {numericChangeFor > totalPrice && (
+                <SummaryRow
+                  label="Troco a receber"
+                  value={formatPrice(numericChangeFor - totalPrice)}
+                  className="text-green-600 font-bold"
+                />
+              )}
+            </>
           )}
 
         {order.deliveryMode && (
@@ -267,10 +305,12 @@ function SummaryRow({
   label,
   value,
   isPending,
+  className,
 }: {
   label: string;
   value: string;
   isPending?: boolean;
+  className?: string;
 }) {
   return (
     <div className="flex items-start justify-between gap-4 py-3 font-sans">
@@ -279,6 +319,7 @@ function SummaryRow({
         className={cn(
           "text-right text-sm font-semibold transition-colors",
           isPending ? "text-destructive" : "text-foreground",
+          className,
         )}
       >
         {value}
