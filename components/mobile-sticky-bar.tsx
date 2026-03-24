@@ -43,12 +43,26 @@ export function MobileStickyBar() {
 
     if (!order.paymentMethod)
       return warnAndScroll("step-pagamento", "Selecione a forma de pagamento.");
-    if (
-      order.paymentMethod === "dinheiro" &&
-      order.needsChange &&
-      !order.changeFor.trim()
-    ) {
-      return warnAndScroll("change-for", "Para quanto você precisa de troco?");
+
+    if (order.paymentMethod === "dinheiro" && order.needsChange) {
+      if (!order.changeFor.trim()) {
+        return warnAndScroll(
+          "change-for",
+          "Para quanto você precisa de troco?",
+        );
+      }
+
+      let clean = order.changeFor.replace(/[^\d.,]/g, "");
+      if (clean.includes(","))
+        clean = clean.replace(/\./g, "").replace(",", ".");
+      const numericChange = parseFloat(clean);
+
+      if (isNaN(numericChange) || numericChange < totalPrice) {
+        return warnAndScroll(
+          "change-for",
+          "O valor para troco não pode ser menor que o pedido.",
+        );
+      }
     }
 
     if (!order.deliveryMode)
@@ -56,6 +70,7 @@ export function MobileStickyBar() {
         "step-entrega",
         "Selecione se deseja entrega ou retirada.",
       );
+
     if (order.deliveryMode === "entrega") {
       if (!order.address.rua.trim())
         return warnAndScroll("addr-rua", "Faltou informar a rua para entrega.");
